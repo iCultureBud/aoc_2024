@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 
 bool comp( int a, int b )
@@ -30,13 +31,9 @@ int main( int argc, char *argv[] ) {
 		second.push_back( stoi(line.substr(space, line.length() - 1)) );
 	}
 
-	// Sort them.
-	std::sort(first.begin(), first.end(), comp);
-	std::sort(second.begin(), second.end(), comp);
-
-	// Sum up diffs.
-	for ( auto idx = 0; idx < first.size(); ++idx )
-		sum += std::abs(first.at(idx) - second.at(idx));
+	// Sum up occurances.
+	for ( auto num : first )
+		sum += num * std::count( second.begin(), second.end(), num );
 
 	// Print res.
 	std::cout << sum << '\n';
