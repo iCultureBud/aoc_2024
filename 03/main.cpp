@@ -12,31 +12,33 @@ int main(int argc, char *argv[]) {
 	if ( ! file.is_open() )
 		return -1;
 
-	getline(file, line);
 	uint64_t sum { 0 };
 	bool enabled { true };
 	std::regex search { "(do\\(\\)|don't\\(\\)|mul\\((\\d+),(\\d+)\\))" };
-	std::regex_iterator<std::string::iterator> regIter ( line.begin(), line.end(), search );
-	std::regex_iterator<std::string::iterator> lineEnd;
-
-	while ( regIter != lineEnd )
+	while ( getline(file, line) )
 	{
-		if ( regIter->str(0) == "0" )
-			break;
+		std::regex_iterator<std::string::iterator> regIter ( line.begin(), line.end(), search );
+		std::regex_iterator<std::string::iterator> lineEnd;
 
-		if ( regIter->str(0) == "don't()" ) { enabled = false; }
-		else if ( regIter->str(0) == "do()" ) { enabled = true; }
-		else
+		while ( regIter != lineEnd )
 		{
-			if ( enabled )
-			{
-				int32_t multiplier = std::stoi( regIter->str(2) );
-				int32_t multiplicand = std::stoi( regIter->str(3) );
-				sum += multiplier * multiplicand;
-			}
-		}
+			if ( regIter->str(0) == "0" )
+				break;
 
-		++regIter;
+			if ( regIter->str(0) == "don't()" ) { enabled = false; }
+			else if ( regIter->str(0) == "do()" ) { enabled = true; }
+			else
+			{
+				if ( enabled )
+				{
+					int32_t multiplier = std::stoi( regIter->str(2) );
+					int32_t multiplicand = std::stoi( regIter->str(3) );
+					sum += multiplier * multiplicand;
+				}
+			}
+
+			++regIter;
+		}
 	}
 
 	std::cout << sum << '\n';
