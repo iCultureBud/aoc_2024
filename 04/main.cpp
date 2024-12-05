@@ -4,7 +4,7 @@
 #include <vector>
 #include <bits/stdc++.h>
 
-constexpr int32_t MAX_CHARS { 3 };
+constexpr uint8_t MAX_CHARS { 3 };
 constexpr std::string SEARCH { "XMAS" };
 constexpr std::string REV_SEARCH { "SAMX" };
 int32_t countLR(int32_t inner, bool canL, bool canR, std::string& line );
@@ -12,9 +12,9 @@ int32_t countHV(int32_t outer, int32_t inner, bool canU, bool canD,
 				bool canL, bool canR, std::vector<std::string>& map );
 
 
-int main(int argc, char *argv[]) {
+int main( int argc, char *argv[] ) {
 
-	std::ifstream file(argv[1]);
+	std::ifstream file( argv[1] );
 	std::string line;
 	std::vector<std::string> map;
 
@@ -36,16 +36,16 @@ int main(int argc, char *argv[]) {
 		canU = outer >= MAX_CHARS;
 		canD = outer <= map.size() - 4;
 
-		for ( int32_t inner = 0; inner < map.at(outer).length(); ++inner )
+		for ( int32_t inner = 0; inner < map[outer].length(); ++inner )
 		{
 			canL = inner >= MAX_CHARS;
-			canR = inner <= map.at(outer).length() - 4;
+			canR = inner <= map[outer].length() - 4;
 
-			if ( map.at(outer)[inner] != 'X' )
+			if ( map[outer][inner] != 'X' )
 				continue;
 
 			if ( canL || canR )
-				sum += countLR(inner, canL, canR, map.at(outer));
+				sum += countLR(inner, canL, canR, map[outer]);
 
 			if ( canU || canD )
 				sum += countHV(outer, inner, canU, canD, canL, canR, map);
@@ -89,48 +89,48 @@ int32_t countHV(int32_t outer, int32_t inner, bool canU, bool canD,
 
 	if ( canU )
 	{
-		foundU = std::string("")
-			+ map[outer][inner]
-			+ map[outer - 1][inner]
-			+ map[outer - 2][inner]
-			+ map[outer - MAX_CHARS][inner] == SEARCH;
+		foundU = std::string {
+			map[outer][inner],
+			map[outer - 1][inner],
+			map[outer - 2][inner],
+			map[outer - MAX_CHARS][inner] } == SEARCH;
 
 		if ( canL )
-			foundUL = std::string("")
-				+ map[outer][inner]
-				+ map[outer - 1][inner - 1]
-				+ map[outer - 2][inner - 2]
-				+ map[outer - MAX_CHARS][inner - MAX_CHARS] == SEARCH;
+			foundUL = std::string {
+				map[outer][inner],
+				map[outer - 1][inner - 1],
+				map[outer - 2][inner - 2],
+				map[outer - MAX_CHARS][inner - MAX_CHARS] } == SEARCH;
 
 		if ( canR )
-			foundUR = std::string("")
-				+ map[outer][inner]
-				+ map[outer - 1][inner + 1]
-				+ map[outer - 2][inner + 2]
-				+ map[outer - MAX_CHARS][inner + MAX_CHARS] == SEARCH;
+			foundUR = std::string {
+				map[outer][inner],
+				map[outer - 1][inner + 1],
+				map[outer - 2][inner + 2],
+				map[outer - MAX_CHARS][inner + MAX_CHARS] } == SEARCH;
 	}
 
 	if ( canD )
 	{
-		foundD = std::string("")
-			+ map[outer][inner]
-			+ map[outer + 1][inner]
-			+ map[outer + 2][inner]
-			+ map[outer + MAX_CHARS][inner] == SEARCH;
+		foundD = std::string {
+			map[outer][inner],
+			map[outer + 1][inner],
+			map[outer + 2][inner],
+			map[outer + MAX_CHARS][inner] } == SEARCH;
 
 		if ( canL )
-			foundDL = std::string("")
-				+ map[outer][inner]
-				+ map[outer + 1][inner - 1]
-				+ map[outer + 2][inner - 2]
-				+ map[outer + MAX_CHARS][inner - MAX_CHARS] == SEARCH;
+			foundDL = std::string {
+				map[outer][inner],
+				map[outer + 1][inner - 1],
+				map[outer + 2][inner - 2],
+				map[outer + MAX_CHARS][inner - MAX_CHARS] } == SEARCH;
 
 		if ( canR )
-			foundDR = std::string("")
-				+ map[outer][inner]
-				+ map[outer + 1][inner + 1]
-				+ map[outer + 2][inner + 2]
-				+ map[outer + MAX_CHARS][inner + MAX_CHARS] == SEARCH;
+			foundDR = std::string {
+				map[outer][inner],
+				map[outer + 1][inner + 1],
+				map[outer + 2][inner + 2],
+				map[outer + MAX_CHARS][inner + MAX_CHARS] } == SEARCH;
 	}
 
 	return foundUL + foundU + foundUR + foundDL + foundD + foundDR;
