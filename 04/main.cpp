@@ -4,12 +4,10 @@
 #include <vector>
 #include <bits/stdc++.h>
 
-constexpr uint8_t MAX_CHARS { 3 };
-constexpr std::string SEARCH { "XMAS" };
-constexpr std::string REV_SEARCH { "SAMX" };
-int32_t countLR(int32_t inner, bool canL, bool canR, std::string& line );
-int32_t countHV(int32_t outer, int32_t inner, bool canU, bool canD,
-				bool canL, bool canR, std::vector<std::string>& map );
+constexpr uint8_t MAX_CHARS { 1 };
+constexpr std::string SEARCH { "MAS" };
+constexpr std::string REV_SEARCH { "SAM" };
+bool countAround(int32_t outer, int32_t inner, std::vector<std::string>& map );
 
 
 int main( int argc, char *argv[] ) {
@@ -34,21 +32,19 @@ int main( int argc, char *argv[] ) {
 	{
 		bool found { false };
 		canU = outer >= MAX_CHARS;
-		canD = outer <= map.size() - 4;
+		canD = outer <= map.size() - 2;
 
 		for ( int32_t inner = 0; inner < map[outer].length(); ++inner )
 		{
 			canL = inner >= MAX_CHARS;
-			canR = inner <= map[outer].length() - 4;
+			canR = inner <= map[outer].length() - 2;
 
-			if ( map[outer][inner] != 'X' )
+			if ( map[outer][inner] != 'A' )
 				continue;
 
-			if ( canL || canR )
-				sum += countLR(inner, canL, canR, map[outer]);
-
-			if ( canU || canD )
-				sum += countHV(outer, inner, canU, canD, canL, canR, map);
+			if ( canU && canR && canD && canL )
+				if ( countAround(outer, inner, map) )
+					++sum;
 		}
 	}
 
@@ -58,80 +54,21 @@ int main( int argc, char *argv[] ) {
 
 
 //------------------------------------------------------------------------------
-// Count matches in same line.
+// Count matches around the 'A's.
 //
-int32_t countLR(int32_t inner, bool canL, bool canR, std::string& line )
+bool countAround(int32_t outer, int32_t inner, std::vector<std::string>& map )
 {
-	bool foundL { 0 };
-	bool foundR { 0 };
+	char foundUL = map[outer - MAX_CHARS][inner - MAX_CHARS];
+	char foundDR = map[outer + MAX_CHARS][inner + MAX_CHARS];
+	std::string LR { foundUL, map[outer][inner], foundDR };
+	if ( LR != SEARCH && LR != REV_SEARCH )
+		return false;
 
-	if ( canL )
-		foundL = line.substr(inner - MAX_CHARS, MAX_CHARS + 1) == REV_SEARCH;
-	if ( canR )
-		foundR = line.substr(inner, MAX_CHARS + 1) == SEARCH;
+	char foundUR = map[outer - MAX_CHARS][inner + MAX_CHARS];
+	char foundDL = map[outer + MAX_CHARS][inner - MAX_CHARS];
+	std::string RL { foundUR, map[outer][inner], foundDL };
+	if ( RL != SEARCH && RL != REV_SEARCH )
+		return false;
 
-	return foundL + foundR;
-}
-
-
-//------------------------------------------------------------------------------
-// Count matches in up(left/right) and down(left/right).
-//
-int32_t countHV(int32_t outer, int32_t inner, bool canU, bool canD,
-				bool canL, bool canR, std::vector<std::string>& map )
-{
-	bool foundU { false };
-	bool foundD { false };
-	bool foundUL { false };
-	bool foundUR { false };
-	bool foundDL { false };
-	bool foundDR { false };
-
-	if ( canU )
-	{
-		foundU = std::string {
-			map[outer][inner],
-			map[outer - 1][inner],
-			map[outer - 2][inner],
-			map[outer - MAX_CHARS][inner] } == SEARCH;
-
-		if ( canL )
-			foundUL = std::string {
-				map[outer][inner],
-				map[outer - 1][inner - 1],
-				map[outer - 2][inner - 2],
-				map[outer - MAX_CHARS][inner - MAX_CHARS] } == SEARCH;
-
-		if ( canR )
-			foundUR = std::string {
-				map[outer][inner],
-				map[outer - 1][inner + 1],
-				map[outer - 2][inner + 2],
-				map[outer - MAX_CHARS][inner + MAX_CHARS] } == SEARCH;
-	}
-
-	if ( canD )
-	{
-		foundD = std::string {
-			map[outer][inner],
-			map[outer + 1][inner],
-			map[outer + 2][inner],
-			map[outer + MAX_CHARS][inner] } == SEARCH;
-
-		if ( canL )
-			foundDL = std::string {
-				map[outer][inner],
-				map[outer + 1][inner - 1],
-				map[outer + 2][inner - 2],
-				map[outer + MAX_CHARS][inner - MAX_CHARS] } == SEARCH;
-
-		if ( canR )
-			foundDR = std::string {
-				map[outer][inner],
-				map[outer + 1][inner + 1],
-				map[outer + 2][inner + 2],
-				map[outer + MAX_CHARS][inner + MAX_CHARS] } == SEARCH;
-	}
-
-	return foundUL + foundU + foundUR + foundDL + foundD + foundDR;
+	return true;
 }

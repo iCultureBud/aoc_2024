@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 
 bool comp( int a, int b )
@@ -29,6 +30,12 @@ int main( int argc, char *argv[] ) {
 		size_t space = line.find(' ');
 		first.push_back( stoi(line.substr(0, space)) );
 		second.push_back( stoi(line.substr(space, line.length() - 1)) );
+
+		// nice shit from DrinoSan
+		std::stringstream str { line };
+		int32_t ln;
+		int32_t rn;
+		str >> ln >> rn;
 	}
 
 	// Sum up occurances.
