@@ -4,12 +4,41 @@
 #include <string>
 #include <vector>
 
-void findPath( int32_t row, int32_t col, char direction,
-			   uint64_t& sum, std::vector<std::string>& map );
+
+enum class DIR
+{
+   UP,
+   RIGHT,
+   DOWN,
+   LEFT,
+   WRAP_UP
+};
+
+// NICE shit from DrinoSan
+DIR& operator++( DIR& dir )
+{
+   dir =  static_cast<DIR>( ( static_cast<int32_t>( dir ) + 1 ) %
+                                  static_cast<int32_t>( DIR::WRAP_UP ) );
+   return dir;
+}
 
 
-int main( int argc, char *argv[] ) {
+// Declare needed static vars.
+static uint64_t sum { 0 };
+static int32_t row { 0 };
+static int32_t col { 0 };
+static DIR direction { DIR::UP };
+static std::vector<std::string> map;
 
+
+// Forward decl.
+void findPath();
+
+
+//------------------------------------------------------------------------------
+// Main chaos.
+int main( int argc, char *argv[] )
+{
 	std::ifstream file(argv[1]);
 	std::string line;
 
@@ -17,26 +46,22 @@ int main( int argc, char *argv[] ) {
 		return -1;
 
 	size_t idx { 0 };
-	uint64_t sum { 0 };
-	int32_t startRow;
-	int32_t startCol;
-	std::vector<std::string> map;
-
 	// Build up the map and remember starting position.
 	while ( getline(file, line) )
 	{
 		size_t start = line.find( '^' );
 		if ( start != std::string::npos )
 		{
-			startRow = idx;
-			startCol = start;
+			row = idx;
+			col = start;
 		}
 
 		map.push_back( line );
 		++idx;
 	}
 
-	findPath( startRow, startCol, 'u', sum, map );
+	// Send this guy on an adventure :]
+	findPath();
 	std::cout << sum << '\n';
 
 	return 0;
@@ -46,8 +71,7 @@ int main( int argc, char *argv[] ) {
 //------------------------------------------------------------------------------
 // Recursive function to find the path of the dude.
 //
-void findPath( int32_t row, int32_t col, char direction,
-			   uint64_t& sum, std::vector<std::string>& map )
+void findPath()
 {
 	// Mark as visited and count one point to path.
 	if ( map[row][col] != 'X' )
@@ -57,43 +81,45 @@ void findPath( int32_t row, int32_t col, char direction,
 	}
 
 	// Return if we can't go any further.
-	if ( ( direction == 'u' && row - 1 < 0 )
-		|| ( direction == 'r' && col + 1 > map[row].length() - 1 )
-		|| ( direction == 'd' && row + 1 > map.size() - 1 )
-		|| ( direction == 'l' && col - 1 < 0 ) )
+	if ( ( direction == DIR::UP && row - 1 < 0 )
+		|| ( direction == DIR::RIGHT && col + 1 > map[row].length() - 1 )
+		|| ( direction == DIR::DOWN && row + 1 > map.size() - 1 )
+		|| ( direction == DIR::LEFT && col - 1 < 0 ) )
 			return;
 
-	// Send to find next spot.
-	// Go up or right.
+	// Set next direction.
 	switch( direction )
 	{
-		case 'u':
-			if ( map[row - 1][col] != '#' )
-				return findPath( row - 1, col, 'u', sum, map );
-			else
-				return findPath( row, col + 1, 'r', sum, map );
+		case DIR::UP:
+		{
+			if ( map[row - 1][col] != '#' ) { --row; }
+			else { ++col; ++direction; }
+			break;
+		}
 
-		// Go right or down.
-		case 'r':
-			if ( map[row][col + 1] != '#' )
-				return findPath( row, col + 1, 'r', sum, map );
-			else
-				return findPath( row + 1, col, 'd', sum, map );
+		case DIR::RIGHT:
+		{
+			if ( map[row][col + 1] != '#' ) { ++col; }
+			else { ++row; ++direction; }
+			break;
+		}
 
-		// Go down or left.
-		case 'd':
-			if ( map[row + 1][col] != '#' )
-				return findPath( row + 1, col, 'd', sum, map );
-			else
-				return findPath( row, col - 1, 'l', sum, map );
+		case DIR::DOWN:
+		{
+			if ( map[row + 1][col] != '#' ) { ++row; }
+			else { --col; ++direction; }
+			break;
+		}
 
-		// Go left or up.
-		case 'l':
-			if ( map[row][col - 1] != '#' )
-				return findPath( row, col - 1, 'l', sum, map );
-			else
-				return findPath( row - 1, col, 'u', sum, map );
+		case DIR::LEFT:
+			if ( map[row][col - 1] != '#' ) { --col; }
+			else { --row; ++direction; }
+			break;
+
+		case DIR::WRAP_UP:
+		default:
+			break;
 	}
 
-	return;
+	return findPath();
 }
