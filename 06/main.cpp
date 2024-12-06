@@ -49,16 +49,6 @@ int main( int argc, char *argv[] ) {
 void findPath( int32_t row, int32_t col, char direction,
 			   uint64_t& sum, std::vector<std::string>& map )
 {
-	// Check if we reached the end.
-	if ( ( direction == 'u' && ( row < 0 || row - 1 < 0 ) )
-	|| ( direction == 'r' && ( col > map[row].length() - 1 || col + 1 > map[row].length() - 1 ) )
-	|| ( direction == 'd' && ( row > map.size() - 1 || ( row + 1 > map.size() - 1 ) ) )
-	|| ( direction == 'l' && ( col < 0 || col - 1 < 0 ) ) )
-	{
-		++sum;
-		return;
-	}
-
 	// Mark as visited and count one point to path.
 	if ( map[row][col] != 'X' )
 	{
@@ -66,41 +56,43 @@ void findPath( int32_t row, int32_t col, char direction,
 		++sum;
 	}
 
+	// Return if we can't go any further.
+	if ( ( direction == 'u' && row - 1 < 0 )
+		|| ( direction == 'r' && col + 1 > map[row].length() - 1 )
+		|| ( direction == 'd' && row + 1 > map.size() - 1 )
+		|| ( direction == 'l' && col - 1 < 0 ) )
+			return;
+
 	// Send to find next spot.
 	// Go up or right.
-	if ( direction == 'u' )
+	switch( direction )
 	{
-		if ( map[row - 1][col] != '#' )
-			return findPath( row - 1, col, 'u', sum, map );
-		else
-			return findPath( row, col + 1, 'r', sum, map );
-	}
+		case 'u':
+			if ( map[row - 1][col] != '#' )
+				return findPath( row - 1, col, 'u', sum, map );
+			else
+				return findPath( row, col + 1, 'r', sum, map );
 
-	// Go right or down.
-	if ( direction == 'r' )
-	{
-		if ( map[row][col + 1] != '#' )
-			return findPath( row, col + 1, 'r', sum, map );
-		else
-			return findPath( row + 1, col, 'd', sum, map );
-	}
+		// Go right or down.
+		case 'r':
+			if ( map[row][col + 1] != '#' )
+				return findPath( row, col + 1, 'r', sum, map );
+			else
+				return findPath( row + 1, col, 'd', sum, map );
 
-	// Go down or left.
-	if ( direction == 'd' )
-	{
-		if ( map[row + 1][col] != '#' )
-			return findPath( row + 1, col, 'd', sum, map );
-		else
-			return findPath( row, col - 1, 'l', sum, map );
-	}
+		// Go down or left.
+		case 'd':
+			if ( map[row + 1][col] != '#' )
+				return findPath( row + 1, col, 'd', sum, map );
+			else
+				return findPath( row, col - 1, 'l', sum, map );
 
-	// Go left or up.
-	if ( direction == 'l' )
-	{
-		if ( map[row][col - 1] != '#' )
-			return findPath( row, col - 1, 'l', sum, map );
-		else
-			return findPath( row - 1, col, 'u', sum, map );
+		// Go left or up.
+		case 'l':
+			if ( map[row][col - 1] != '#' )
+				return findPath( row, col - 1, 'l', sum, map );
+			else
+				return findPath( row - 1, col, 'u', sum, map );
 	}
 
 	return;
