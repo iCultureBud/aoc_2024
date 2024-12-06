@@ -112,9 +112,11 @@ void findPath()
 		}
 
 		case DIR::LEFT:
+		{
 			if ( map[row][col - 1] != '#' ) { --col; }
 			else { --row; ++direction; }
 			break;
+		}
 
 		case DIR::WRAP_UP:
 		default:
