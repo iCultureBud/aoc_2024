@@ -3,12 +3,12 @@
 #include <string>
 
 
-int main(int argc, char *argv[]) {
-
-	std::ifstream file(argv[1]);
+int main( int argc, char *argv[] )
+{
+	std::ifstream file( argv[1] );
 	std::string line;
 
-	if ( ! file.is_open() )
+	if ( !file.is_open() )
 		return -1;
 
 	while ( getline(file, line) ) {
